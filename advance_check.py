@@ -27,10 +27,10 @@ RECALL_MSG_TIME = config.RECALL_MSG_TIME
 main_path = hoshino.config.RES_DIR  #使用在 _bot_.py 里填入的资源库文件夹
 receiver = hoshino.config.SUPERUSERS[0]  #需要收到消息的超级管理员
 
-_max = config.adc_limit  #每天查看配置的次数
+_max = 3  #每天查看配置的次数
 _nlmt = DailyNumberLimiter(_max)
 
-_cd = config.adc_cd  #每次查看配置的冷却时间(s)
+_cd = 10  #每次查看配置的冷却时间(s)
 _flmt = FreqLimiter(_cd)
 
 scwaits = 2 #服务器全屏截图需要等待的时间，若时间过短可能导致图片生成 晚于 发送 导致发送空图片
