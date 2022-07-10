@@ -27,10 +27,10 @@ RECALL_MSG_TIME = config.RECALL_MSG_TIME
 main_path = hoshino.config.RES_DIR  #使用在 _bot_.py 里填入的资源库文件夹
 receiver = hoshino.config.SUPERUSERS[0]  #需要收到消息的超级管理员
 
-_max = config.adc_limit  #每天查看配置的次数
+_max = 3  #每天查看配置的次数
 _nlmt = DailyNumberLimiter(_max)
 
-_cd = config.adc_cd  #每次查看配置的冷却时间(s)
+_cd = 10  #每次查看配置的冷却时间(s)
 _flmt = FreqLimiter(_cd)
 
 scwaits = 2 #服务器全屏截图需要等待的时间，若时间过短可能导致图片生成 晚于 发送 导致发送空图片
@@ -393,8 +393,8 @@ svadpush = Service(
     help_ = '自检推送服务' #帮助文本
     )
 
-date_1_hour = config.datetime_1[0]
-date_1_minutes = config.datetime_1[1]
+date_1_hour = 9
+date_1_minutes = 30
 @svadpush.scheduled_job('cron', hour=f'{date_1_hour}', minute=f'{date_1_minutes}')
 async def adcheck_pushs():
     bot = hoshino.get_bot()
@@ -411,8 +411,8 @@ async def adcheck_pushs():
     await bot.send_private_msg(user_id=receiver, message=finalimg)
 
 
-date_2_hour = config.datetime_2[0]
-date_2_minutes = config.datetime_2[1]
+date_2_hour = 14
+date_2_minutes = 30
 @svadpush.scheduled_job('cron', hour=f'{date_2_hour}', minute=f'{date_2_minutes}')
 async def adcheck_pushs():
     bot = hoshino.get_bot()
@@ -429,8 +429,8 @@ async def adcheck_pushs():
     await bot.send_private_msg(user_id=receiver, message=finalimg)
 
 
-date_3_hour = config.datetime_3[0]
-date_3_minutes = config.datetime_3[1]
+date_3_hour = 21
+date_3_minutes = 30
 @svadpush.scheduled_job('cron', hour=f'{date_3_hour}', minute=f'{date_3_minutes}')
 async def adcheck_pushs():
     bot = hoshino.get_bot()
