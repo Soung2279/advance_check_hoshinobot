@@ -18,21 +18,22 @@ from hoshino import Service, priv, config, util, R
 from hoshino.util import FreqLimiter, DailyNumberLimiter
 from hoshino.typing import CQEvent
 
-#在下面22-26行更改
+#在下面22-28行更改
 forward_msg_exchange = config.FORWARD_MSG_EXCHANGE
 forward_msg_name = config.FORWARD_MSG_NAME
 forward_msg_uid = config.FORWARD_MSG_UID
 recall_msg_set = config.RECALL_MSG_SET
 RECALL_MSG_TIME = config.RECALL_MSG_TIME
 main_path = hoshino.config.RES_DIR  #使用在 _bot_.py 里填入的资源库文件夹
+receiver = hoshino.config.SUPERUSERS[0]  #需要收到消息的超级管理员
 
-_max = 3  #每天查看配置的次数
+_max = config.adc_limit  #每天查看配置的次数
 _nlmt = DailyNumberLimiter(_max)
 
-_cd = 3  #每次查看配置的冷却时间(s)
+_cd = config.adc_cd  #每次查看配置的冷却时间(s)
 _flmt = FreqLimiter(_cd)
 
-scwaits = 2 #服务器全屏截图需要等待的时间，若时间过短可能导致图片生成 后于 发送导致发送空图片
+scwaits = 2 #服务器全屏截图需要等待的时间，若时间过短可能导致图片生成 晚于 发送 导致发送空图片
 
 WARNING_NOTICE = f"今天已经查看{_max}次了！"  #到达上限的提示语
 
@@ -176,10 +177,11 @@ sv_help = '''
 - [@bot看看配置]  查看
 - [服务器截图]
 - [清理adck]  清空截图
+- [启用adck_push]  启用推送
 '''.strip()
 
 sv = Service(
-    name = 'advance_check',  #功能名
+    name = '服务器检查',  #功能名
     use_priv = priv.ADMIN, #使用权限   
     manage_priv = priv.ADMIN, #管理权限
     visible = True, #False隐藏
@@ -191,7 +193,7 @@ sv = Service(
 @sv.on_fullmatch(["服务器截图", "bot截图"])
 async def screenshots(bot, ev):
     uid = ev['user_id']
-    if not priv.check_priv(ev, priv.SUPERUSER):   #建议使用priv.SUPERUSER
+    if not priv.check_priv(ev, priv.ADMIN):   #建议使用priv.SUPERUSER
         now = datetime.now()
         hour = now.hour
         minute = now.minute
@@ -382,19 +384,22 @@ async def advance_check_set(bot, ev: CQEvent):
                 await bot.send(ev, VIDEO_INFO_ALL)
 
 svadpush = Service(
-    name = 'adcheck_push',  #功能名
-    use_priv = priv.NORMAL, #使用权限
+    name = '服务器检查推送',  #功能名
+    use_priv = priv.ADMIN, #使用权限
     manage_priv = priv.SUPERUSER, #管理权限
-    visible = True, #是否可见
+    visible = False, #是否可见
     enable_on_default = True, #是否默认启用
     bundle = 'advance', #属于哪一类
     help_ = '自检推送服务' #帮助文本
     )
 
-@svadpush.scheduled_job('cron', hour='9', minute='30')  #每天9:30推送
+DATE_1 = config.datetime_1
+DATE_2 = config.datetime_2
+DATE_3 = config.datetime_3
+
+@svadpush.scheduled_job(DATE_1)
 async def adcheck_pushs():
     bot = hoshino.get_bot()
-    receiver = hoshino.config.SUPERUSERS[0]
     now = datetime.now()
     hour = now.hour
     minute = now.minute
@@ -407,10 +412,9 @@ async def adcheck_pushs():
     await bot.send_private_msg(user_id=receiver, message=info_head)
     await bot.send_private_msg(user_id=receiver, message=finalimg)
 
-@svadpush.scheduled_job('cron', hour='14', minute='30')  #每天14:30推送
+@svadpush.scheduled_job(DATE_2)
 async def adcheck_pushs():
     bot = hoshino.get_bot()
-    receiver = hoshino.config.SUPERUSERS[0]
     now = datetime.now()
     hour = now.hour
     minute = now.minute
@@ -423,10 +427,9 @@ async def adcheck_pushs():
     await bot.send_private_msg(user_id=receiver, message=info_head)
     await bot.send_private_msg(user_id=receiver, message=finalimg)
 
-@svadpush.scheduled_job('cron', hour='20', minute='30')  #每天20:30推送
+@svadpush.scheduled_job(DATE_3)
 async def adcheck_pushs():
     bot = hoshino.get_bot()
-    receiver = hoshino.config.SUPERUSERS[0]
     now = datetime.now()
     hour = now.hour
     minute = now.minute
